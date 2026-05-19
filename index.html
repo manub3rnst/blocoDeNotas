@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bloco de Notas Moderno</title>
+    <meta name="theme-color" content="#ffffff">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,8 +13,18 @@
     <div class="container">
         <h1>Bloco de notas - Manuella</h1>
         <p>Suas anotações são salvas automaticamente no seu navegador.</p>
-        
-        <textarea id="blocoDeNotas" placeholder="Comece a digitar aqui..."></textarea>
+
+        <div class="toolbar">
+            <div id="saveStatus" class="save-status" aria-live="polite"></div>
+            <div class="actions">
+                <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Alternar modo claro/escuro">☀️ Claro</button>
+                <button id="exportBtn" type="button">Exportar</button>
+                <button id="clearBtn" type="button">Limpar</button>
+            </div>
+        </div>
+
+        <label for="blocoDeNotas" class="sr-only">Área de notas</label>
+        <textarea id="blocoDeNotas" placeholder="Comece a digitar aqui..." aria-describedby="saveStatus"></textarea>
     </div>
 
     <script src="script.js"></script>
