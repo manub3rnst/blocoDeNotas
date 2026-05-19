@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportBtn = document.getElementById('exportBtn');
     const clearBtn = document.getElementById('clearBtn');
     const themeToggle = document.getElementById('themeToggle');
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 
     const STORAGE_KEY = 'minhaNota';
     const DEBOUNCE_MS = 600;
@@ -68,11 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Theme (dark mode) handling */
     function applyTheme(theme) {
-        document.documentElement.classList.toggle('dark', theme === 'dark');
+        const isDark = theme === 'dark';
+        document.body.classList.toggle('dark', isDark);
         if (themeToggle) {
-            const isDark = theme === 'dark';
             themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
             themeToggle.textContent = isDark ? '🌙 Escuro' : '☀️ Claro';
+        }
+        if (themeColorMeta) {
+            themeColorMeta.setAttribute('content', isDark ? '#121635' : '#f7f4ff');
         }
     }
 
