@@ -1,126 +1,122 @@
-// Espera o conteúdo da página carregar completamente antes de executar o script.
-// É uma boa prática para evitar erros de JavaScript tentando acessar elementos
-// que ainda não existem na página.
-document.addEventListener('DOMContentLoaded', () => {
-    const blocoDeNotas = document.getElementById('blocoDeNotas');
-    const saveStatus = document.getElementById('saveStatus');
-    const exportBtn = document.getElementById('exportBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const themeToggle = document.getElementById('themeToggle');
-    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+const itemInput = document.getElementById('itemInput');
+const priceInput = document.getElementById('priceInput');
+const categoryInput = document.getElementById('categoryInput');
+const priorityInput = document.getElementById('priorityInput');
+const addBtn = document.getElementById('addBtn');
+const shoppingList = document.getElementById('shoppingList');
+const totalItems = document.getElementById('totalItems');
+const completedItems = document.getElementById('completedItems');
+const totalPrice = document.getElementById('totalPrice');
+const progress = document.querySelector('.progress');
+const progressText = document.getElementById('progressText');
+const searchInput = document.getElementById('searchInput');
+const exportBtn = document.getElementById('exportBtn');
+const clearBtn = document.getElementById('clearBtn');
+const themeToggle = document.getElementById('themeToggle');
 
-    const STORAGE_KEY = 'minhaNota';
-    const DEBOUNCE_MS = 600;
-    const THEME_KEY = 'theme';
+let items = JSON.parse(localStorage.getItem('shoppingItems')) || [];
 
-    let saveTimer = null;
+function saveItems() {
+    localStorage.setItem('shoppingItems', JSON.stringify(items));
+}
 
-    function showStatus(message, ms = 1500) {
-        if (!saveStatus) return;
-        saveStatus.textContent = message;
-        if (ms > 0) {
-            setTimeout(() => {
-                // esvazia apenas se a mensagem atual for a mesma
-                if (saveStatus.textContent === message) saveStatus.textContent = '';
-            }, ms);
+
+function updateStats() {
+
+    totalItems.textContent = items.length;
+
+    const completed = items.filter(item => item.completed).length;
+    completedItems.textContent = completed;
+
+    const total = items.reduce((acc, item) => acc + Number(item.price || 0), 0);
+    totalPrice.textContent = total.toFixed(2);
+
+    const percent = items.length
+        ? Math.round((completed / items.length) * 100)
+        : 0;
+
+        progress.style.width = `${percent}%`;
+    progressText.textContent = `${percent}%`;
+}
+
+
+function renderItems(filter = '') {
+
+    shoppingList.innerHTML = '';
+
+    const filteredItems = items.filter(item =>
+        item.name.toLowerCase().includes(filter.toLowerCase())
+    );
+
+    filteredItems.forEach((item, index) => {
+
+        const li = document.createElement('li');
+        li.classList.add('item');
+
+        if(item.completed) {
+            li.classList.add('completed');
         }
+
+li.innerHTML = `
+            <div class="item-left">
+                <input type="checkbox" ${item.completed ? 'checked' : ''}>
+
+                <div>
+                    <div class="item-name">${item.name}</div>
+                    <div class="category">${item.category} • R$ ${item.price}</div>
+                </div>
+
+                ${item.priority === 'alta'
+                    ? '<span class="priority alta">Prioridade Alta</span>'
+                    : ''}
+            </div>
+
+            <button class="delete-btn">Excluir</button>
+        `;
+        const checkbox = li.querySelector('input');
+        checkbox.addEventListener('change', () => {
+            item.completed = checkbox.checked;
+            saveItems();
+            renderItems(searchInput.value);
+            updateStats();
+        });
+
+        const deleteBtn = li.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', () => {
+            items.splice(index, 1);
+            saveItems();
+            renderItems(searchInput.value);
+            updateStats();
+        });
+
+        shoppingList.appendChild(li);
+    });
+}
+
+addBtn.addEventListener('click', () => {
+
+    const name = itemInput.value.trim();
+    const price = priceInput.value || 0;
+
+    if(!name) {
+        alert('Digite um item');
+        return;
     }
 
-    function loadNote() {
-        try {
-            const nota = localStorage.getItem(STORAGE_KEY);
-            if (nota) blocoDeNotas.value = nota;
-        } catch (err) {
-            console.error('Erro ao ler localStorage:', err);
-            showStatus('Não foi possível carregar a nota');
-        }
-    }
+    items.push({
+        name,
+        price,
+        category: categoryInput.value,
+        priority: priorityInput.value,
+        completed: false
+    });
 
-    function saveNote() {
-        try {
-            localStorage.setItem(STORAGE_KEY, blocoDeNotas.value);
-            showStatus('Salvo');
-        } catch (err) {
-            console.error('Erro ao salvar no localStorage:', err);
-            showStatus('Falha ao salvar');
-        }
-    }
+    saveItems();
+    renderItems(searchInput.value);
+    updateStats();
 
-    function debounceSave() {
-        if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => {
-            saveNote();
-            saveTimer = null;
-        }, DEBOUNCE_MS);
-    }
-
-    function exportNote() {
-        const text = blocoDeNotas.value;
-        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'nota.txt';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-    }
-
-    /* Theme (dark mode) handling */
-    function applyTheme(theme) {
-        const isDark = theme === 'dark';
-        document.body.classList.toggle('dark', isDark);
-        if (themeToggle) {
-            themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-            themeToggle.textContent = isDark ? '🌙 Escuro' : '☀️ Claro';
-        }
-        if (themeColorMeta) {
-            themeColorMeta.setAttribute('content', isDark ? '#121635' : '#f7f4ff');
-        }
-    }
-
-    function loadTheme() {
-        try {
-            const stored = localStorage.getItem(THEME_KEY);
-            if (stored) { applyTheme(stored); return; }
-        } catch (err) {
-            console.warn('Não foi possível ler preferência de tema:', err);
-        }
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(prefersDark ? 'dark' : 'light');
-    }
-
-    function toggleTheme() {
-        const isDark = document.documentElement.classList.contains('dark');
-        const next = isDark ? 'light' : 'dark';
-        try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
-        applyTheme(next);
-    }
-
-    function clearNote() {
-        if (!confirm('Tem certeza que deseja limpar a nota?')) return;
-        blocoDeNotas.value = '';
-        try {
-            localStorage.removeItem(STORAGE_KEY);
-            showStatus('Limpo');
-        } catch (err) {
-            console.error('Erro ao limpar localStorage:', err);
-            showStatus('Falha ao limpar');
-        }
-    }
-
-    // Inicialização
-    if (blocoDeNotas) {
-        loadNote();
-        blocoDeNotas.addEventListener('input', debounceSave);
-    }
-
-    if (exportBtn) exportBtn.addEventListener('click', exportNote);
-    if (clearBtn) clearBtn.addEventListener('click', clearNote);
-    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
-
-    // Load theme after handlers are attached
-    loadTheme();
-
+    itemInput.value = '';
+    priceInput.value = '';
+    categoryInput.value = '';
+    priorityInput.value = '';
 });

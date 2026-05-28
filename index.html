@@ -3,30 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bloco de Notas Moderno</title>
-    <meta name="theme-color" content="#ffffff">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Lista de Compras - Manuella</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="container">
-        <h1>Bloco de notas - Manuella</h1>
-        <p>Suas anotações são salvas automaticamente no seu navegador.</p>
-
-        <div class="toolbar">
-            <div id="saveStatus" class="save-status" aria-live="polite"></div>
-            <div class="actions">
-                <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Alternar modo claro/escuro">☀️ Claro</button>
-                <button id="exportBtn" type="button">Exportar</button>
-                <button id="clearBtn" type="button">Limpar</button>
+        <header>
+            <div>
+                <h1>🛒 Lista de Compras</h1>
+                <p>Organize suas compras de forma inteligente</p>
             </div>
-        </div>
+            <button id="themeToggle">🌙</button>
+        </header>
+        <section class="top-actions">
+            <input type="text" id="searchInput" placeholder="Pesquisar item...">
 
-        <label for="blocoDeNotas" class="sr-only">Área de notas</label>
-        <textarea id="blocoDeNotas" placeholder="Comece a digitar aqui..." aria-describedby="saveStatus"></textarea>
+            <button id="exportBtn">Exportar</button>
+            <button id="clearBtn">Limpar</button>
+        </section>
+        <section class="add-item-box">
+            <input type="text" id="itemInput" placeholder="Adicionar item...">
+            <input type="number" id="priceInput" placeholder="Preço">
+            <select id="categoryInput">
+                <option value="Mercado">Mercado</option>
+                <option value="Limpeza">Limpeza</option>
+                <option value="Higiene">Higiene</option>
+                <option value="Bebidas">Bebidas</option>
+                <option value="Outros">Outros</option>
+            </select>
+            <select id="priorityInput">
+                <option value="normal">Normal</option>
+                <option value="alta">Alta</option>
+            </select>
+            <button id="addBtn">Adicionar</button>
+        </section>
+        <div class="card-stat">
+                <span>Total de Itens</span>
+                <h2 id="totalItems">0</h2>
+            </div>
+            <div class="card-stat">
+                <span>Comprados</span>
+                <h2 id="completedItems">0</h2>
+            </div>
+            <div class="card-stat">
+                <span>Valor Total</span>
+                <h2>R$ <span id="totalPrice">0.00</span></h2>
+            </div>
+        <section class="stats">
+        </section>
+        <section class="progress-section">
+            <div class="progress-info">
+                <span>Progresso da compra</span>
+                <span id="progressText">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </section>
+        <ul id="shoppingList"></ul>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
